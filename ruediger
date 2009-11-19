@@ -1,0 +1,187 @@
+; The .emacs file of ruediger
+; Given to me on 2009-11-18
+
+(setq-default indent-tabs-mode nil)
+(setq-default tabs-width 2)
+(setq-default buffers-menu-max-size 30)
+
+(setq visible-bell 1)
+(setq ring-bell-function (lambda () ; blink Scroll-LED instead of beep
+   (call-process-shell-command "xset led 3; xset -led 3" nil 0 nil)))
+
+(show-paren-mode 1)
+(server-start)
+(column-number-mode)
+
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
+
+(add-to-list 'load-path "/usr/local/share/emacs")
+(add-to-list 'load-path "~/.emacs.d/site-lisp/")
+
+(setq x-select-enable-clipboard t)
+
+(push '("." . "~/.emacs.d/backups") backup-directory-alist)
+
+;; Maxima
+(add-to-list 'load-path "/usr/local/share/maxima/current/emacs/")
+(setq imaxima-maxima-program "/usr/local/bin/maxima")
+(setq imaxima-use-maxima-mode-flag t)
+(autoload 'imaxima "imaxima" "Frontend for maxima with Image support" t)
+(autoload 'maxima "maxima" "Frontend for maxima" t)
+(autoload 'maxima-mode "maxima" "Maxima mode" t)
+(autoload 'imath-mode "imath" "Imath mode for math formula input" t)
+
+;; Compile-Buffer
+;(autoload 'compile-buffer "compile-buf.el" "compiles current buffer" t)
+(add-hook 'c-mode-hook
+          (lambda ()
+            (unless (or (file-exists-p "Makefile")
+                        (not (string-equal compile-command "make -k ")))
+              (set (make-local-variable 'compile-command)
+                   (format "%s %s %s"
+                           (or (getenv "CC") "gcc")
+                           (or (getenv "CFLAGS")
+                               "-pipe -std=c99 -pedantic-errors -Wall -Wextra -g3")
+                           (file-name-nondirectory buffer-file-name))))))
+(add-hook 'c++-mode-hook
+          (lambda ()
+            (unless (or (file-exists-p "Makefile")
+                        (not (string-equal compile-command "make -k ")))
+              (set (make-local-variable 'compile-command)
+                   (format "%s %s %s"
+                           (or (getenv "CXX") "g++")
+                           (or (getenv "CXXFLAGS")
+                               "-pipe -std=c++0x -pedantic-errors -Wall -Wextra -Weffc++ -g3")
+                           (file-name-nondirectory buffer-file-name))))))
+
+(add-hook 'fortran-mode-hook
+          (lambda ()
+            (unless (or (file-exists-p "Makefile")
+                        (not (string-equal compile-command "make -k ")))
+              (set (make-local-variable 'compile-command)
+                   (format "%s %s %s"
+                           (or (getenv "FORTRANC") "gfortran")
+                           (or (getenv "FORTRANFLAGS")
+                               "-pipe -pedantic-errors -Wall -Wextra -g3")
+                           (file-name-nondirectory buffer-file-name))))))
+
+(global-set-key '[f9] 'compile)
+(global-set-key '[f8] '(lambda ()
+                         (interactive)
+                        (when (file-exists-p "Makefile") (compile "make clean"))))
+
+;; Rename Buffer
+(autoload 'rename-buffer-file "rename.el"
+  "Renames the file of the current buffer to new-filename and reopens it"
+  t)
+(global-set-key "\C-cr" 'rename-buffer-file)
+
+;; Paste Lisp
+(autoload 'paste-region-to-lisp-org "paste-lisp-org.el"
+  "paste region to paste.lisp.org" t)
+
+;; Keys
+(global-set-key "\C-cl" '(lambda (line)
+                           (interactive "nGoto Line: ")
+                           (goto-line line)))
+(global-set-key "\C-ci" 'indent-region)
+(global-set-key "\C-cTAB" 'align)
+
+;; Modes
+(add-to-list 'auto-mode-alist '("\\.asd" . lisp-mode))
+(add-to-list 'auto-mode-alist '("wscript" . python-mode))
+(add-to-list 'auto-mode-alist '("wscript_build" . python-mode))
+(add-to-list 'auto-mode-alist '("\\.mac" . maxima-mode))
+(add-to-list 'auto-mode-alist '("\\.xslt" . xml-mode))
+
+;; SLIME
+(setq inferior-lisp-program "/usr/local/bin/sbcl"
+      lisp-indent-function 'common-lisp-indent-function
+      slime-complete-symbol-function 'slime-fuzzy-complete-symbol
+      slime-startup-animation t)
+
+(setq slime-net-coding-system 'utf-8-unix)
+
+(add-to-list 'load-path "/usr/local/share/emacs/slime")
+(require 'slime-autoloads)
+
+(add-hook 'lisp-mode-hook (lambda () (slime-mode t)))
+
+(global-set-key "\C-cs" 'slime-selector)
+
+(slime-setup '(slime-autodoc slime-references slime-fancy slime-asdf))
+
+;; AUC-Tex/Reftex
+(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/reftex")
+(load "auctex.el" nil t t)
+(load "preview-latex.el" nil t t)
+
+(add-hook 'LaTeX-mode-hook 'turn-on-reftex)   ; with AUCTeX LaTeX mode
+(add-hook 'latex-mode-hook 'turn-on-reftex)   ; with Emacs latex mode
+
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+
+(add-hook 'TeX-language-de-hook
+          (lambda () (ispell-change-dictionary "ngerman")))
+
+;; Org-mode
+(require 'org-install)
+(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+(add-hook 'org-mode-hook 'turn-on-font-lock)
+(setq org-special-ctrl-k t)
+
+(require 'org-mouse)
+
+(setq org-directory "~/Notes")
+(defun my-org-file (name)
+  (concat org-directory "/" name))
+(setq org-agenda-files (list 
+                        (my-org-file "date.org")
+                        (my-org-file "notes.org")
+                        (my-org-file "tasks.org")
+                        (my-org-file "uni.org")
+                        (my-org-file "wien.org")))
+(global-set-key "\C-ca" 'org-agenda)
+
+;; Remember
+(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/remember/")
+(require 'remember)
+(setq org-default-notes-file (my-org-file "notes.org"))
+(setq remember-annotation-functions '(org-remember-annotation))
+(setq remember-handler-functions '(org-remember-handler))
+(add-hook 'remember-mode-hook 'org-remember-apply-template)
+(define-key global-map "\C-cy" 'org-remember)
+
+(org-remember-insinuate)
+
+;; MozRepl
+(autoload 'moz-minor-mode "moz" "Mozilla Minor and Inferior Mozilla Modes" t)
+
+(add-hook 'javascript-mode-hook 'javascript-custom-setup)
+(defun javascript-custom-setup ()
+  (moz-minor-mode 1))
+
+;; Magit
+(autoload 'magit-status "magit" "git status" t)
+(define-key global-map "\C-cm" 'magit-status)
+
+;; Javascript
+(autoload 'js2-mode "js2" nil t)
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.es$" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.json$" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.jsdoc$" . js2-mode))
+
+(autoload 'flusspferd "flusspferd" "Inferior Flusspferd Mode." t)
+(autoload 'flusspferd-minor-mode "flusspferd" "Flusspferd Minor Mode" t)
+(add-hook 'js2-mode-hook 'flusspferd-minor-mode)
+
+;; Distel
+(add-to-list 'load-path "/usr/local/share/distel/elisp")
+(require 'distel)
+(distel-setup)
+
+(add-to-list 'load-path "/usr/local/share/wrangler/elisp")
+(require 'wrangler)

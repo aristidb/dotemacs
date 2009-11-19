@@ -1,0 +1,238 @@
+; The .emacs file of The-Kenny
+; Given to me on 2009-11-18
+
+(require 'cl)
+
+;; UTF8!
+(setq locale-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+
+;; Tab-Width -> 4
+(setq default-tab-width 4)
+;; Do *not* insert tabs for indent
+(setq-default indent-tabs-mode nil)
+(setq indent-tabs-mode nil)
+;; Mark with regions
+(setq transient-mark-mode t)
+
+;; No shitty backup-files
+(setq make-backup-files nil) 
+
+;; Enable x11-c&p
+(setq x-select-enable-clipboard t)
+
+;; Fix the Fontifying *Slime Compilation* bug:
+(setq font-lock-verbose nil)
+
+
+;; Aquamacs-Customizations
+
+(setq mac-option-modifier nil) 
+(setq mac-command-modifier 'meta)
+
+(tool-bar-mode 0)
+(tabbar-mode nil)
+
+(defvar emacs-directory "~/emacs/"
+  "The directory containing the emacs configuration files.")
+
+;; Define the load-path
+(pushnew (expand-file-name emacs-directory) load-path)
+
+;; Bind RET to (newline-and-indent), but only in Lisp-Mode
+;; Also, bind M-s to mark-sexp
+(let ((fun (lambda ()
+			 (local-set-key (kbd "RET") 'newline-and-indent)
+			 (local-set-key (kbd "M-s") 'mark-sexp))))
+  (add-hook 'emacs-lisp-mode-hook fun)
+  (add-hook 'slime-mode-hook fun)
+  (add-hook 'clojure-mode-hook fun)
+  (add-hook 'slime-repl-mode-hook fun)
+  (add-hook 'inferior-lisp-mode fun)
+  (add-hook 'lisp-mode fun))
+		
+;; Map slime-selector to C-c s
+(global-set-key "\C-cs" 'slime-selector)
+
+;; Use objc-mode for .mm
+(setq auto-mode-alist
+	  (append '(("\\.mm$" . objc-mode)
+				("\\.m$" . objc-mode)
+				("\\.h$" . c++-mode))
+			  auto-mode-alist))
+
+
+
+                                                                                
+;;; Slime
+(add-to-list 'load-path (concat emacs-directory "slime/"))
+
+(require 'slime-autoloads)
+(slime-setup '(slime-asdf	  ;M-x slime-load-system
+			   slime-fuzzy	  ;Expand 'mvb' to multiple-value-bind etc
+			   slime-repl	  ;A better REPL for slime
+			   slime-scratch  ;M-x slime-scratch, a scratch-buffer
+			   slime-fancy-inspector ;A fancy inspector
+			   slime-presentations	 ;Clickable objects
+			   ))
+
+; (setq inferior-lisp-program "/usr/local/bin/sbcl")
+
+(setq slime-lisp-implementations
+	  '((sbcl ("/usr/local/bin/sbcl") :coding-system utf-8-unix)))
+
+
+;; Make auto-completion fuzzy
+(setf slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
+
+(defun run-sbcl ()
+  "Starts sbcl in Slime"
+  (interactive)
+  (slime 'sbcl))
+
+;; clojure-mode
+(add-to-list 'load-path (concat emacs-directory "clojure-mode/"))
+(autoload 'clojure-mode "clojure-mode" "A major mode for Clojure" t)
+(add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode))
+
+;; clojure-slime 
+(add-to-list 'load-path (concat emacs-directory "swank-clojure/"))
+;; (setq swank-clojure-extra-classpaths
+;; 	  (list (concat emacs-directory "swank-clojure/")
+;; 			"~/Development/clojure/clojure-contrib.jar"
+;; 			"~/Development/clojure/"))
+
+(setq swank-clojure-extra-classpaths (list ))
+
+(require 'swank-clojure-autoload)
+
+(let ((jars (directory-files "~/Development/clojure/lib" t ".jar$")))
+  (when jars
+	(setq swank-clojure-extra-classpaths
+		  (append swank-clojure-extra-classpaths
+				  jars))))
+
+(add-to-list 'swank-clojure-extra-classpaths
+			 (concat emacs-directory "swank-clojure/"))
+(add-to-list 'swank-clojure-extra-classpaths
+			 "~/Development/clojure/clojure-contrib.jar")
+(add-to-list 'swank-clojure-extra-classpaths
+			 "~/Development/clojure/lib")
+
+
+;; (setq swank-clojure-library-paths
+;; 	  (list "~/Development/clojure/"))
+
+(setq swank-clojure-path (concat emacs-directory
+								 "swank-clojure/"))
+(setq swank-clojure-jar-path "~/Development/clojure/clojure.jar")
+(setq swank-clojure-init-files (list (expand-file-name
+									  "~/Development/clojure/init.clj")))
+
+(defun run-clojure ()
+  "Starts clojure in Slime"
+  (interactive)
+  (slime 'clojure))
+
+;;; Org-Mode
+(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+(setq org-hide-leading-stars t)
+(setq org-log-done t)
+(define-key global-map "\C-ca" 'org-agenda)
+
+;; Org-Files
+(setq org-directory "~/org-files/")
+
+(load-library "find-lisp")
+(setq org-agenda-files (find-lisp-find-files org-directory "\.org$"))
+
+;; Use org-mode as default
+(setq default-major-mode 'org-mode)
+(setq initial-major-mode 'org-mode)		;Also for *scratch*
+
+
+;;; Remember
+(add-to-list 'load-path (concat emacs-directory "remember"))
+(require 'remember)
+
+(org-remember-insinuate)
+
+(setq org-default-notes-file (concat org-directory "Journal.org"))
+(setq org-remember-templates
+      `(("Todo" ?t "* TODO %?\n  %i\n  %a" 
+		 ,(concat org-directory "ToDo.org") "Tasks")
+        ("Journal" ?j "* %U %?\n\n  %i\n  %a" 
+		 ,org-default-notes-file)
+        ("Idea" ?i "* %^{Title}\n  %i\n  %a" 
+		 ,org-default-notes-file "New Ideas"))) 
+
+(define-key global-map "\C-cr" 'org-remember)
+
+;; iswitchb-buffer
+(require 'iswitchb)
+(add-hook 'iswitchb-minibuffer-setup-hook
+		  '(lambda () (set (make-local-variable 'max-mini-window-height) 3)))
+(iswitchb-default-keybindings)
+
+ 
+;;; It's magit!
+(add-to-list 'load-path (concat emacs-directory "magit/"))
+(require 'magit)
+
+;; Bind C-x g to magit-status
+(global-set-key (kbd "C-x g") 'magit-status)
+
+;; Load some modes
+(autoload 'markdown-mode "markdown-mode.el"
+  "Major mode for editing Markdown files" t)
+(setq auto-mode-alist
+	  (append '(("\\.text" . markdown-mode)
+				("\\.md" . markdown-mode))
+			  auto-mode-alist))
+(put 'downcase-region 'disabled nil)
+
+(put 'narrow-to-region 'disabled nil)
+
+;; Htmlize
+(require 'htmlize)
+
+;; pdf-preview
+(require 'pdf-preview)
+
+;; haskell-mode from git
+(load (concat emacs-directory "haskell-mode/haskell-site-file"))
+
+(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+
+; Hoogle
+(add-hook 'haskell-mode-hook
+		  (lambda ()
+			(define-key haskell-mode-map "\C-ch" 'haskell-hoogle)))
+
+;; Properly load calc
+(autoload 'calc-dispatch          "calc" "Calculator Options" t)
+(autoload 'full-calc              "calc" "Full-screen Calculator" t)
+(autoload 'full-calc-keypad       "calc" "Full-screen X Calculator" t)
+(autoload 'calc-eval              "calc" "Use Calculator from Lisp")
+(autoload 'defmath                "calc" nil t t)
+(autoload 'calc                   "calc" "Calculator Mode" t)
+(autoload 'quick-calc             "calc" "Quick Calculator" t)
+(autoload 'calc-keypad            "calc" "X windows Calculator" t)
+(autoload 'calc-embedded          "calc" "Use Calc from any buffer" t)
+(autoload 'calc-embedded-activate "calc" "Activate =>'s in buffer" t)
+(autoload 'calc-grab-region       "calc" "Grab region of Calc data" t)
+(autoload 'calc-grab-rectangle    "calc" "Grab rectangle of data" t)
+
+(global-set-key "\e#" 'calc-dispatch)
+
+(load-library "flusspferd")
+
+;; erlang-mode
+(add-to-list 'load-path (concat emacs-directory "erlang/"))
+(setq erlang-root-dir "/usr/local/lib/erlang")
+;(setq exec-path (cons "/usr/local/lib/erlang/bin" exec-path))
+(require 'erlang-start)
