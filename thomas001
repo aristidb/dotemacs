@@ -1,0 +1,39 @@
+; From thomas001
+; 2009-11-20
+
+(setq inhibit-startup-screen t)
+
+(iswitchb-mode)
+
+(add-to-list 'load-path "~/.emacs.d")
+(autoload 'cmake-mode "cmake-mode" "" t)
+(setq auto-mode-alist
+      (append '(("CMakeLists\\.txt\\'" . cmake-mode)
+		("\\.cmake\\'" . cmake-mode))
+	      auto-mode-alist))
+
+(add-hook 'latex-mode-hook
+	  (lambda ()
+	    (auto-fill-mode)))
+
+;;; haskell
+(load "~/emacs/haskell-mode-2.4/haskell-site-file")
+(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+
+
+
+(custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(compilation-scroll-output (quote first-error))
+ '(ispell-program-name "/usr/bin/aspell")
+ '(iswitchb-cannot-complete-hook (quote (iswitchb-next-match))))
+(custom-set-faces
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ )
