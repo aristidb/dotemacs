@@ -1,8 +1,7 @@
 ;; My own options :-)
 
 ; Custom
-(when
-    (file-exists-p "~/.emacs.d/custom.el")
+(when (file-exists-p "~/.emacs.d/custom.el")
   (setq custom-file "~/.emacs.d/custom.el")
   (load custom-file))
 
@@ -34,8 +33,8 @@
 (add-to-list 'load-path "~/local/share/emacs/site-lisp/")
 
 ; Modeline
-(require 'modeline-posn nil 'noerror)
-(setq-default modelinepos-column-limit 80)
+(when (require 'modeline-posn nil 'noerror)
+  (setq-default modelinepos-column-limit 80))
 
 ; C++ Mode
 (defun aristid-c-mode-common ()
@@ -52,8 +51,8 @@
 (add-hook 'c-mode-common-hook 'aristid-c-mode-common)
 
 ; Org
-(require 'org-install)
-(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+(when (require 'org-install nil 'noerror)
+  (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode)))
 
 ; ESS
 (require 'ess-site "ess/ess-site" 'noerror)
@@ -67,9 +66,9 @@
 (setq imaxima-use-maxima-mode-flag t)
 
 ; Textile
-(require 'textile-mode nil 'noerror)
-(add-to-list 'auto-mode-alist '("\\.textile\\'" . textile-mode))
+(when (require 'textile-mode nil 'noerror)
+  (add-to-list 'auto-mode-alist '("\\.textile\\'" . textile-mode)))
 
 ; Ledger
-(require 'ledger nil 'noerror)
-(add-to-list 'auto-mode-alist '("\\.ledger\\'" . ledger-mode))
+(when (require 'ledger nil 'noerror)
+  (add-to-list 'auto-mode-alist '("\\.ledger\\'" . ledger-mode)))
