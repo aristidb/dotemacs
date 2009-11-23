@@ -1,8 +1,10 @@
 ;; My own options :-)
 
 ; Custom
-(setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
+(when
+    (file-exists-p "~/.emacs.d/custom.el")
+  (setq custom-file "~/.emacs.d/custom.el")
+  (load custom-file))
 
 ; Start the server for emacsclient
 (server-start)
@@ -54,7 +56,7 @@
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
 ; ESS
-(require 'ess-site "ess/ess-site")
+(require 'ess-site "ess/ess-site" 'noerror)
 
 ; Maxima
 (add-to-list 'load-path "/usr/share/emacs23/site-lisp/maxima")
@@ -65,9 +67,9 @@
 (setq imaxima-use-maxima-mode-flag t)
 
 ; Textile
-(require 'textile-mode)
+(require 'textile-mode nil 'noerror)
 (add-to-list 'auto-mode-alist '("\\.textile\\'" . textile-mode))
 
 ; Ledger
-(require 'ledger)
+(require 'ledger nil 'noerror)
 (add-to-list 'auto-mode-alist '("\\.ledger\\'" . ledger-mode))
