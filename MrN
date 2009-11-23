@@ -1,0 +1,73 @@
+;; My own options :-)
+
+; Custom
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
+
+; Start the server for emacsclient
+(server-start)
+
+; Clipboard
+(setq x-select-enable-clipboard t)
+
+; Indentation
+(setq-default indent-tabs-mode nil)
+(setq-default tabs-width 2)
+
+; Buffers menu
+(setq-default buffers-menu-max-size 30)
+
+; Font lock
+(global-font-lock-mode 1)
+
+; Line / Column numbers
+(line-number-mode 1)
+(column-number-mode 1)
+; Size indication
+(size-indication-mode 1)
+
+; Add paths
+(add-to-list 'load-path "/usr/local/share/emacs")
+(add-to-list 'load-path "~/.emacs.d/site-lisp/")
+(add-to-list 'load-path "~/local/share/emacs/site-lisp/")
+
+; Modeline
+(require 'modeline-posn)
+(setq-default modelinepos-column-limit 80)
+
+; C++ Mode
+(defun aristid-c-mode-common ()
+  (interactive)
+  (font-lock-add-keywords nil 
+                          '(("\\<\\(FIXME\\|TODO\\|XXX+\\|BUG\\):" 
+                             1 font-lock-warning-face prepend)))  
+  (c-set-style "user")
+  (setq c-basic-offset 2)
+  (c-set-offset 'arglist-intro '++)
+  (c-set-offset 'arglist-close 0)
+  (c-set-offset 'label 0))
+
+(add-hook 'c-mode-common-hook 'aristid-c-mode-common)
+
+; Org
+(require 'org-install)
+(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+
+; ESS
+(require 'ess-site "ess/ess-site")
+
+; Maxima
+(add-to-list 'load-path "/usr/share/emacs23/site-lisp/maxima")
+(autoload 'maxima-mode "maxima/maxima" "Maxima mode" t)
+(autoload 'imaxima "maxima/imaxima" "Frontend for maxima with Image support" t)
+(autoload 'maxima "maxima/maxima" "Maxima interaction" t)
+(autoload 'imath-mode "maxima/imath" "Imath mode for math formula input" t)
+(setq imaxima-use-maxima-mode-flag t)
+
+; Textile
+(require 'textile-mode)
+(add-to-list 'auto-mode-alist '("\\.textile\\'" . textile-mode))
+
+; Ledger
+(require 'ledger)
+(add-to-list 'auto-mode-alist '("\\.ledger\\'" . ledger-mode))
