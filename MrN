@@ -1,3 +1,4 @@
+; -*- emacs-lisp-mode -*-
 ;; My own options :-)
 
 ; Custom
@@ -35,6 +36,10 @@
 ; Modeline
 (when (require 'modeline-posn nil 'noerror)
   (setq-default modelinepos-column-limit 80))
+
+; TRAMP
+(when (require 'tramp nil 'noerror)
+  (setq tramp-default-method "ssh"))
 
 ; C++ Mode
 (defun aristid-c-mode-common ()
