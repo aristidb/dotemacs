@@ -106,13 +106,14 @@
   (add-to-list 'auto-mode-alist '("\\.ledger\\'" . ledger-mode)))
 
 ; SMEX (= ido for M-x)
-(require 'smex)
-(add-hook 'after-init-hook 'smex-initialize)
+(when (require 'smex nil 'noerror)
+  (add-hook 'after-init-hook 'smex-initialize)
 
-(global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "M-X") 'smex-major-mode-commands)
-(global-set-key (kbd "C-c M-x") 'smex-update-and-run)
-;; This is your old M-x.
-(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
+  (global-set-key (kbd "M-x") 'smex)
+  (global-set-key (kbd "M-X") 'smex-major-mode-commands)
+  (global-set-key (kbd "C-c M-x") 'smex-update-and-run)
+  ;; This is your old M-x.
+  (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
 
-(smex-initialize) ; only needed when you load this file with M-x eval-buffer
+  (smex-initialize) ; only needed when you load this file with M-x eval-buffer
+  )
