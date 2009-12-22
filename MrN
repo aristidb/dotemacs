@@ -37,6 +37,10 @@
 (when (require 'modeline-posn nil 'noerror)
   (setq-default modelinepos-column-limit 80))
 
+; ido
+(require 'ido)
+(ido-mode t)
+
 ; TRAMP (some of it from http://tsdh.wordpress.com/2008/08/20/re-open-read-only-files-as-root-automagically/)
 (require 'tramp) ; total requirement :-)
 
