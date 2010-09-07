@@ -32,6 +32,8 @@
 (add-to-list 'load-path "/usr/local/share/emacs")
 (add-to-list 'load-path "~/.emacs.d/site-lisp/")
 (add-to-list 'load-path "~/local/share/emacs/site-lisp/")
+(add-to-list 'load-path "~/emacs")
+(add-to-list 'load-path "~/emacs/haskell-mode-exts")
 
 ; Modeline
 (when (require 'modeline-posn nil 'noerror)
@@ -117,3 +119,14 @@
 
   (smex-initialize) ; only needed when you load this file with M-x eval-buffer
   )
+
+; Haskell
+(load "~/emacs/haskell-mode-2.8.0/haskell-site-file")
+
+(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
+
+(when (require 'haskell-align-imports 'noerror)
+  (define-key haskell-mode-map (kbd "C-c .") 'haskell-align-imports))
