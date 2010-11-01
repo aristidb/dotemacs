@@ -33,7 +33,7 @@
 (add-to-list 'load-path "~/.emacs.d/site-lisp/")
 (add-to-list 'load-path "~/local/share/emacs/site-lisp/")
 (add-to-list 'load-path "~/emacs")
-(add-to-list 'load-path "~/emacs/haskell-mode-exts")
+(add-to-list 'load-path "~/emacs/haskell-mode-exts/")
 
 ; Modeline
 (when (require 'modeline-posn nil 'noerror)
@@ -129,4 +129,37 @@
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
 
 (when (require 'haskell-align-imports nil 'noerror)
-  (define-key haskell-mode-map (kbd "C-c .") 'haskell-align-imports))
+  ;(define-key haskell-mode-map (kbd "C-c .") 'haskell-align-imports)
+  )
+
+; Auto complete
+(add-to-list 'load-path "~/.emacs.d/")
+(require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories "~/.emacs.d//ac-dict")
+(ac-config-default)
+(require 'auto-complete-extension)
+(global-auto-complete-mode t)           ;enable global-mode
+(setq ac-auto-start t)                  ;automatically start
+(setq ac-dwim t)                        ;Do what i mean
+(setq ac-modes
+      '(emacs-lisp-mode lisp-interaction-mode lisp-mode scheme-mode
+                        c-mode cc-mode c++-mode java-mode
+                        perl-mode cperl-mode python-mode ruby-mode
+                        ecmascript-mode javascript-mode php-mode css-mode
+                        makefile-mode sh-mode fortran-mode f90-mode ada-mode
+                        xml-mode sgml-mode
+                        haskell-mode literate-haskell-mode
+                        emms-tag-editor-mode
+                        asm-mode
+                        org-mode))
+(dolist (hook (list
+               'emacs-lisp-mode-hook
+               'lisp-interaction-mode
+               ))
+  (add-hook hook '(lambda ()
+                    (add-to-list 'ac-sources 'ac-source-symbols))))
+(add-hook 'c++-mode-hook '(lambda ()
+                            (add-to-list 'ac-sources 'ac-c++-sources)))
+(add-hook 'haskell-mode-hook '(lambda ()
+                                (add-to-list 'ac-sources 'ac-source-haskell)))
+
