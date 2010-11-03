@@ -139,8 +139,9 @@
 (ac-config-default)
 (require 'auto-complete-extension)
 (global-auto-complete-mode t)           ;enable global-mode
-(setq ac-auto-start t)                  ;automatically start
+(setq ac-auto-start 4)                  ;automatically start
 (setq ac-dwim t)                        ;Do what i mean
+(ac-set-trigger-key "TAB")
 (setq ac-modes
       '(emacs-lisp-mode lisp-interaction-mode lisp-mode scheme-mode
                         c-mode cc-mode c++-mode java-mode
