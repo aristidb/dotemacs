@@ -1,3 +1,6 @@
 [submodule "auto-complete"]
 	path = auto-complete
 	url = git@github.com:aristidb/auto-complete.git
+[submodule "smex"]
+	path = smex
+	url = git@github.com:aristidb/smex.git

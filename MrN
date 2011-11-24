@@ -34,6 +34,7 @@
 (add-to-list 'load-path "~/local/share/emacs/site-lisp/")
 (add-to-list 'load-path "~/dotemacs")
 (add-to-list 'load-path "~/dotemacs/haskell-mode-exts/")
+(add-to-list 'load-path "~/dotemacs/smex")
 
 ; Modeline
 (when (require 'modeline-posn nil 'noerror)
